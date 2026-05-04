@@ -338,12 +338,12 @@
     .form-card h3 { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--navy); margin-bottom:6px; }
     .form-card .subtitle { font-size:.85rem; color:var(--gray); margin-bottom:28px; }
     .form-notice {
-      display:flex; align-items:flex-start; gap:10px;
+      display:flex; align-items:flex-start; gap:12px;
       background:rgba(201,168,76,.08); border-left:3px solid var(--gold);
       border-radius:0 8px 8px 0; padding:14px 16px;
-      font-size:.82rem; color:var(--navy); margin-bottom:28px; line-height:1.5;
+      font-size:.83rem; color:var(--navy); margin-bottom:28px; line-height:1.65;
     }
-    .form-notice svg { width:16px; height:16px; color:var(--gold); flex-shrink:0; margin-top:2px; }
+    .form-notice svg { width:20px; height:20px; color:var(--gold); flex-shrink:0; margin-top:1px; }
     .form-section-title {
       font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
       color:var(--gold); margin:24px 0 14px;
@@ -753,46 +753,56 @@
         <p class="subtitle">Los campos con <span style="color:#e05">*</span> son obligatorios.</p>
         <div class="form-notice">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Tu información es <strong>confidencial</strong>. Solo el Dr. Juan W. Castellanos tendrá acceso a los datos que compartas aquí.
+          <div>Tu información es <strong>confidencial</strong>. Solo el Dr. Juan W. Castellanos tendrá acceso a los datos que compartas aquí.</div>
         </div>
 
-        <div id="form-body">
+        <!-- FormSubmit form — envía al correo del doctor -->
+        <form id="form-body"
+              action="https://formsubmit.co/juaw_castellanos@unicah.edu"
+              method="POST">
+
+          <!-- FormSubmit config -->
+          <input type="hidden" name="_subject" value="Nueva solicitud de cita — Dr. Castellanos" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_next" value="about:blank" />
+
           <div class="form-section-title">Datos personales</div>
 
           <div class="form-group">
             <label for="nombre">Nombre completo <span class="req">*</span></label>
-            <input type="text" id="nombre" placeholder="Ej. María López Hernández" required />
+            <input type="text" id="nombre" name="Nombre completo" placeholder="Ej. María López Hernández" required />
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="identidad">Número de identidad <span class="req">*</span></label>
-              <input type="text" id="identidad" placeholder="0801-1990-XXXXX" required />
+              <input type="text" id="identidad" name="Número de identidad" placeholder="0801-1990-XXXXX" required />
             </div>
             <div class="form-group">
               <label for="edad">Edad <span class="req">*</span></label>
-              <input type="number" id="edad" placeholder="Ej. 34" min="1" max="120" required />
+              <input type="number" id="edad" name="Edad" placeholder="Ej. 34" min="1" max="120" required />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="nacimiento">Fecha de nacimiento <span class="req">*</span></label>
-              <input type="date" id="nacimiento" required />
+              <input type="date" id="nacimiento" name="Fecha de nacimiento" required />
             </div>
             <div class="form-group">
               <label for="sexo">Sexo biológico <span class="req">*</span></label>
-              <select id="sexo" required>
+              <select id="sexo" name="Sexo biológico" required>
                 <option value="" disabled selected>Seleccionar…</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
               </select>
             </div>
           </div>
 
           <div class="form-group">
             <label for="telefono">Teléfono / WhatsApp <span class="req">*</span></label>
-            <input type="tel" id="telefono" placeholder="+504 9XXX-XXXX" required />
+            <input type="tel" id="telefono" name="Teléfono WhatsApp" placeholder="+504 9XXX-XXXX" required />
           </div>
 
           <div class="form-section-title">Antecedentes de salud</div>
@@ -800,32 +810,32 @@
           <div class="form-group">
             <label>¿Padece alguna enfermedad de base? <span class="req">*</span></label>
             <div class="radio-group">
-              <label class="radio-option"><input type="radio" name="enfermedad" value="no" required /> No</label>
-              <label class="radio-option"><input type="radio" name="enfermedad" value="si" /> Sí</label>
+              <label class="radio-option"><input type="radio" name="Enfermedad de base" value="No" required /> No</label>
+              <label class="radio-option"><input type="radio" name="Enfermedad de base" value="Sí" /> Sí</label>
             </div>
           </div>
           <div class="form-group" id="enfermedad-detalle" style="display:none">
             <label for="enfermedad-cual">¿Cuál(es)?</label>
-            <input type="text" id="enfermedad-cual" placeholder="Ej. Diabetes tipo 2, hipertensión…" />
+            <input type="text" id="enfermedad-cual" name="Enfermedad(es)" placeholder="Ej. Diabetes tipo 2, hipertensión…" />
           </div>
 
           <div class="form-group">
             <label for="alergias">Alergias conocidas a medicamentos</label>
-            <input type="text" id="alergias" placeholder="Ej. Penicilina, Ibuprofeno… o 'Ninguna'" />
+            <input type="text" id="alergias" name="Alergias a medicamentos" placeholder="Ej. Penicilina, Ibuprofeno… o 'Ninguna'" />
           </div>
 
           <div class="form-section-title">Motivo de consulta</div>
 
           <div class="form-group">
             <label for="motivo">Describe brevemente tu motivo de consulta <span class="req">*</span></label>
-            <textarea id="motivo" placeholder="Ej. Dolor de cabeza desde hace 3 días, fiebre y malestar general…" required></textarea>
+            <textarea id="motivo" name="Motivo de consulta" placeholder="Ej. Dolor de cabeza desde hace 3 días, fiebre y malestar general…" required></textarea>
           </div>
 
           <div class="form-section-title">Plan de atención <span class="req">*</span></div>
 
           <div class="plan-select-group">
             <label class="plan-option">
-              <input type="radio" name="plan" value="basico" required />
+              <input type="radio" name="Plan de atención" value="Paquete Básico — L 700 (1 consulta)" required />
               <div class="plan-option-body">
                 <div class="plan-option-name">Paquete Básico</div>
                 <div class="plan-option-desc">1 consulta · Historia clínica + evaluación + receta</div>
@@ -833,7 +843,7 @@
               <div class="plan-option-price">L 700</div>
             </label>
             <label class="plan-option">
-              <input type="radio" name="plan" value="seguimiento" />
+              <input type="radio" name="Plan de atención" value="Paquete Seguimiento — L 1,200 (2 consultas)" />
               <div class="plan-option-body">
                 <div class="plan-option-name">Paquete Seguimiento <span class="plan-popular-badge">Más popular</span></div>
                 <div class="plan-option-desc">2 consultas · Control + ajuste + labs</div>
@@ -841,7 +851,7 @@
               <div class="plan-option-price">L 1,200</div>
             </label>
             <label class="plan-option">
-              <input type="radio" name="plan" value="integral" />
+              <input type="radio" name="Plan de atención" value="Control Integral — L 2,000 (4 consultas)" />
               <div class="plan-option-body">
                 <div class="plan-option-name">Control Integral</div>
                 <div class="plan-option-desc">4 consultas · Seguimiento completo + plan personalizado</div>
@@ -853,7 +863,7 @@
           <div class="form-section-title" style="margin-top:24px">Preferencia de cita</div>
           <div class="form-group">
             <label for="fecha">Fecha preferida <span class="req">*</span></label>
-            <input type="date" id="fecha" required />
+            <input type="date" id="fecha" name="Fecha preferida" required />
           </div>
 
           <div class="consent-row">
@@ -861,17 +871,8 @@
             <label for="consent" style="font-weight:400;cursor:pointer">Acepto que mis datos sean utilizados exclusivamente para coordinar y gestionar mi cita médica.</label>
           </div>
 
-          <button class="btn-submit" id="btn-submit" onclick="handleSubmit(event)">Enviar solicitud de cita</button>
-        </div>
-
-        <div id="success-msg">
-          <div class="success-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="28" height="28"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <h3>¡Solicitud enviada!</h3>
-          <p>Gracias por confiar en el Dr. Juan W. Castellanos. Te contactaremos por WhatsApp a la brevedad posible para confirmar tu cita.</p>
-          <p style="margin-top:12px">Si necesitas atención urgente, escríbenos directamente al <strong>(+504) 9890-4686</strong>.</p>
-        </div>
+          <button type="submit" class="btn-submit">Enviar solicitud de cita</button>
+        </form>
       </div>
     </div>
   </div>
@@ -899,48 +900,15 @@
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
   /* Enfermedad toggle */
-  document.querySelectorAll('input[name="enfermedad"]').forEach(r => {
+  document.querySelectorAll('input[name="Enfermedad de base"]').forEach(r => {
     r.addEventListener('change', () => {
-      document.getElementById('enfermedad-detalle').style.display = r.value === 'si' ? 'block' : 'none';
+      document.getElementById('enfermedad-detalle').style.display = r.value === 'Sí' ? 'block' : 'none';
     });
   });
 
   /* Set min date for appointment */
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('fecha').setAttribute('min', today);
-
-  /* Form submit */
-  function handleSubmit(e) {
-    e.preventDefault();
-    const required = ['nombre','identidad','edad','nacimiento','sexo','telefono','motivo','fecha'];
-    let valid = true;
-    required.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el.value.trim()) { el.style.borderColor = '#e05'; valid = false; }
-      else el.style.borderColor = '';
-    });
-    if (!document.querySelector('input[name="enfermedad"]:checked')) valid = false;
-    if (!document.querySelector('input[name="plan"]:checked')) valid = false;
-    if (!document.getElementById('consent').checked) valid = false;
-    if (!valid) { alert('Por favor completa todos los campos obligatorios.'); return; }
-
-    /* Build WhatsApp message */
-    const nombre  = document.getElementById('nombre').value;
-    const telefono= document.getElementById('telefono').value;
-    const motivo  = document.getElementById('motivo').value;
-    const plan    = document.querySelector('input[name="plan"]:checked')?.value || '';
-    const fecha   = document.getElementById('fecha').value;
-    const planLabel = {basico:'Paquete Básico (L 700)', seguimiento:'Paquete Seguimiento (L 1,200)', integral:'Control Integral (L 2,000)'}[plan] || plan;
-
-    const msg = encodeURIComponent(
-      `Hola Dr. Castellanos, me gustaría agendar una cita.\n\n` +
-      `*Nombre:* ${nombre}\n*Teléfono:* ${telefono}\n*Plan:* ${planLabel}\n*Fecha preferida:* ${fecha}\n*Motivo:* ${motivo}`
-    );
-    window.open(`https://wa.me/50498904686?text=${msg}`, '_blank');
-
-    document.getElementById('form-body').style.display = 'none';
-    document.getElementById('success-msg').style.display = 'block';
-  }
 </script>
 </body>
 </html>
