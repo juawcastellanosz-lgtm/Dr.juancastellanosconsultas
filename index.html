@@ -890,7 +890,7 @@
             <label for="consent" style="font-weight:400;cursor:pointer">Acepto que mis datos sean utilizados exclusivamente para coordinar y gestionar mi cita médica.</label>
           </div>
 
-          <button type="submit" class="btn-submit">Enviar solicitud de cita</button>
+          <button type="submit" class="btn-submit" id="btn-enviar">Enviar solicitud de cita</button>
         </form>
       </div>
     </div>
@@ -911,29 +911,12 @@
   </div>
 </footer>
 
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+<script>
+  const MASTER_KEY = '$2a$10$Am03zeJ2QOR6Hiah0WnVbOiO.ebfm/XVQ0lzOMwuJcRysXB5DLYwa';
+  const BIN_NAME   = 'Citas-DrCastellanos';
+  let   BIN_ID     = localStorage.getItem('jb_bin_id') || null;
 
-  // ── Firebase config (base de datos pública de solo lectura/escritura protegida por reglas) ──
-  const firebaseConfig = {
-    apiKey: "AIzaSyDemo_REPLACE_WITH_YOUR_KEY",
-    authDomain: "dr-castellanos-citas.firebaseapp.com",
-    databaseURL: "https://dr-castellanos-citas-default-rtdb.firebaseio.com",
-    projectId: "dr-castellanos-citas",
-    storageBucket: "dr-castellanos-citas.appspot.com",
-    appId: "1:000000000000:web:0000000000000000"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-
-  // Horarios disponibles 7am–5pm cada hora
-  const SLOTS = [
-    '07:00','08:00','09:00','10:00','11:00',
-    '12:00','13:00','14:00','15:00','16:00','17:00'
-  ];
+  const SLOTS  = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
   const LABELS = {
     '07:00':'7:00 AM','08:00':'8:00 AM','09:00':'9:00 AM',
     '10:00':'10:00 AM','11:00':'11:00 AM','12:00':'12:00 PM',
@@ -943,29 +926,65 @@
 
   let selectedSlot = null;
 
+  // Crear bin si no existe
+  async function ensureBin() {
+    if (BIN_ID) return BIN_ID;
+    const r = await fetch('https://api.jsonbin.io/v3/b', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': MASTER_KEY,
+        'X-Bin-Name': BIN_NAME,
+        'X-Bin-Private': 'false'
+      },
+      body: '{}'
+    });
+    const data = await r.json();
+    BIN_ID = data.metadata.id;
+    localStorage.setItem('jb_bin_id', BIN_ID);
+    return BIN_ID;
+  }
+
+  async function getData() {
+    const id = await ensureBin();
+    const r  = await fetch(`https://api.jsonbin.io/v3/b/${id}/latest`, {
+      headers: { 'X-Master-Key': MASTER_KEY }
+    });
+    const data = await r.json();
+    return data.record || {};
+  }
+
+  async function setData(obj) {
+    const id = await ensureBin();
+    await fetch(`https://api.jsonbin.io/v3/b/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+      body: JSON.stringify(obj)
+    });
+  }
+
   async function loadSlots(fecha) {
     const grid    = document.getElementById('hora-grid');
     const loading = document.getElementById('hora-loading');
     grid.innerHTML = '';
     loading.style.display = 'block';
+    loading.textContent = 'Cargando horarios…';
     selectedSlot = null;
     document.getElementById('hora-hidden').value = '';
 
-    // Leer horas ocupadas desde Firebase
-    let occupied = {};
-    try {
-      const snap = await get(ref(db, `citas/${fecha}`));
-      if (snap.exists()) occupied = snap.val();
-    } catch(e) { /* sin conexión: mostrar todos disponibles */ }
-
+    let allData = {};
+    try { allData = await getData(); } catch(e) {}
     loading.style.display = 'none';
+
+    const occupied = allData[fecha] || {};
 
     SLOTS.forEach(slot => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = LABELS[slot];
-      btn.className = 'hora-btn' + (occupied[slot] ? ' occupied' : '');
-      if (!occupied[slot]) {
+      const isOccupied = !!occupied[slot];
+      btn.className = 'hora-btn' + (isOccupied ? ' occupied' : '');
+      if (!isOccupied) {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
@@ -977,45 +996,42 @@
     });
   }
 
-  // Cuando cambia la fecha
   document.getElementById('fecha').addEventListener('change', function() {
     if (!this.value) return;
     document.getElementById('hora-grupo').style.display = 'block';
     loadSlots(this.value);
   });
 
-  // Interceptar submit para bloquear la hora en Firebase ANTES de enviar a FormSubmit
   document.getElementById('form-body').addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    const fecha = document.getElementById('fecha').value;
     const hora  = document.getElementById('hora-hidden').value;
+    const fecha = document.getElementById('fecha').value;
 
     if (!hora) {
       alert('Por favor selecciona una hora para tu cita.');
       return;
     }
 
-    // Verificar que la hora siga disponible
-    let occupied = {};
+    const submitBtn = document.getElementById('btn-enviar');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando…';
+
     try {
-      const snap = await get(ref(db, `citas/${fecha}`));
-      if (snap.exists()) occupied = snap.val();
-    } catch(e) {}
+      let allData = await getData();
+      if (!allData[fecha]) allData[fecha] = {};
+      // Verificar que siga libre
+      if (allData[fecha][selectedSlot]) {
+        alert('Esa hora acaba de ser reservada. Por favor elige otra.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar solicitud de cita';
+        loadSlots(fecha);
+        return;
+      }
+      // Bloquear
+      allData[fecha][selectedSlot] = true;
+      await setData(allData);
+    } catch(err) { /* si falla la red, igual enviar */ }
 
-    const slotKey = Object.keys(LABELS).find(k => LABELS[k] === hora);
-    if (occupied[slotKey]) {
-      alert('Esa hora ya fue reservada mientras llenabas el formulario. Por favor elige otra.');
-      loadSlots(fecha);
-      return;
-    }
-
-    // Bloquear la hora
-    try {
-      await set(ref(db, `citas/${fecha}/${slotKey}`), true);
-    } catch(e) { /* continuar aunque Firebase falle */ }
-
-    // Enviar a FormSubmit
     this.submit();
   });
 </script>
