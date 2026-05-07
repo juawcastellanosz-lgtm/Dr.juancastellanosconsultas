@@ -448,6 +448,9 @@
       .form-layout { grid-template-columns:1fr; gap:40px; }
       .why-grid { grid-template-columns:1fr; }
     }
+    @media(max-width:768px) {
+      #ubicacion .container > div:last-child { grid-template-columns:1fr !important; }
+    }
     @media(max-width:640px) {
       section { padding:72px 0; }
       .services-grid { grid-template-columns:1fr; }
@@ -902,10 +905,51 @@
 </section>
 
 <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+<!-- ─── UBICACIÓN ──────────────────────────────────────────────── -->
+<section id="ubicacion" style="background:var(--white);padding:100px 0;">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="tag">Encuéntranos</div>
+      <h2 style="color:var(--navy)">Nuestra Clínica</h2>
+      <p>Visítanos en persona o agenda tu cita en línea.</p>
+    </div>
+    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;">
+      <!-- Info -->
+      <div style="background:var(--cream);border-radius:20px;padding:36px;border:1px solid rgba(201,168,76,.15);">
+        <div style="color:var(--gold);margin-bottom:20px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="36" height="36"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy);margin-bottom:16px;">Peniel Hospital Médico Quirúrgico</h3>
+        <p style="font-size:.95rem;color:var(--gray);line-height:1.8;margin-bottom:24px;">
+          22 Calle A, 21102<br>
+          San Pedro Sula, Cortés<br>
+          Honduras
+        </p>
+        <a href="https://maps.google.com/?q=Peniel+Hospital+Medico+Quirurgico+San+Pedro+Sula+Honduras" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:12px 22px;border-radius:10px;font-size:.875rem;font-weight:600;text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Ver en Google Maps
+        </a>
+      </div>
+      <!-- Mapa embebido -->
+      <div style="border-radius:20px;overflow:hidden;border:1px solid rgba(201,168,76,.15);height:320px;">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3765.0!2d-88.0255!3d15.5038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f6596b0b0b0b0b0%3A0x0!2sPeniel+Hospital+M%C3%A9dico+Quir%C3%BArgico!5e0!3m2!1ses!2shn!4v1"
+          width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="footer-inner">
     <div class="footer-logo">Dr. Juan W. Castellanos</div>
     <div class="footer-role">Médico General · Honduras</div>
+    <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:16px;">
+      📍 Peniel Hospital Médico Quirúrgico, 22 Calle A, San Pedro Sula, Cortés
+    </p>
     <a href="https://wa.me/50498904686" target="_blank" rel="noopener" class="btn-wa" style="margin:0 auto;width:fit-content">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.428a.5.5 0 0 0 .515.572l5.757-1.508A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.6a9.594 9.594 0 0 1-4.918-1.352l-.352-.21-3.658.958.975-3.559-.229-.368A9.573 9.573 0 0 1 2.4 12C2.4 6.698 6.698 2.4 12 2.4S21.6 6.698 21.6 12 17.302 21.6 12 21.6z"/></svg>
       (+504) 9890-4686
