@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0f1f3d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Mis citas" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <title>Panel privado · Dr. Castellanos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:#0f1f3d; --navy-mid:#162847; --gold:#c9a84c; --gold-lt:#e8c97a;
+      --cream:#f9f6f0; --white:#fff; --gray:#6b778a; --gray-lt:#d4dae4; --text:#1a2a44;
+      --ok:#1f8a4c; --ok-bg:#e7f6ed; --warn:#9a6b00; --warn-bg:#fdf4dc;
+      --bad:#b42323; --bad-bg:#fdecec; --info:#1d4f91; --info-bg:#e7effa;
+      --radius:12px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { -webkit-text-size-adjust:100%; }
+    body { font-family:'DM Sans',system-ui,sans-serif; background:var(--cream); color:var(--text); min-height:100vh; }
+    button, input, select, textarea { font:inherit; color:inherit; }
+    .hidden { display:none !important; }
+
+    /* ─── Login ─────────────────────────── */
+    #login {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:24px 16px; background:var(--navy);
+      background-image:radial-gradient(ellipse at top, #1d3560 0%, var(--navy) 60%);
+    }
+    .login-card {
+      width:100%; max-width:380px; background:var(--white); border-radius:20px;
+      padding:36px 28px 28px; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.35);
+    }
+    .login-logo { width:68px; height:68px; border-radius:50%; background:#fff; border:2px solid var(--gold);
+      margin:0 auto 14px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .login-logo img { width:58px; height:58px; object-fit:contain; }
+    .login-card h1 { font-family:'Playfair Display',serif; font-size:1.45rem; color:var(--navy); }
+    .login-card .sub { color:var(--gray); font-size:.88rem; margin:6px 0 26px; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      border:none; border-radius:var(--radius); padding:13px 18px; font-weight:600; font-size:.95rem;
+      cursor:pointer; transition:background .2s, transform .1s; min-height:46px;
+    }
+    .btn:active { transform:scale(.98); }
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .btn-gold { background:var(--gold); color:var(--navy); }
+    .btn-gold:hover { background:var(--gold-lt); }
+    .btn-navy { background:var(--navy); color:#fff; }
+    .btn-navy:hover { background:var(--navy-mid); }
+    .btn-line { background:transparent; border:1.5px solid var(--gray-lt); color:var(--navy); }
+    .btn-line:hover { border-color:var(--navy); }
+    .btn-danger { background:transparent; border:1.5px solid #f0c4c4; color:var(--bad); }
+    .btn-sm { padding:8px 12px; min-height:36px; font-size:.82rem; border-radius:9px; }
+    .btn-block { width:100%; }
+    .btn svg { width:20px; height:20px; flex-shrink:0; }
+    .divider { display:flex; align-items:center; gap:10px; color:var(--gray); font-size:.78rem; margin:18px 0; }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--gray-lt); }
+    .pin-input {
+      width:100%; text-align:center; font-size:1.5rem; letter-spacing:.5em; padding:12px;
+      border:1.5px solid var(--gray-lt); border-radius:var(--radius); outline:none; margin-bottom:12px;
+    }
+    .pin-input:focus { border-color:var(--gold); }
+    .msg { font-size:.85rem; margin-top:14px; min-height:1.2em; }
+    .msg.err { color:var(--bad); }
+    .msg.ok { color:var(--ok); }
+    .login-foot { margin-top:22px; font-size:.75rem; color:var(--gray); line-height:1.5; }
+    .login-foot a { color:var(--navy); }
+
+    /* ─── App ───────────────────────────── */
+    header.top {
+      position:sticky; top:0; z-index:10; background:var(--navy); color:#fff;
+      padding:calc(12px + env(safe-area-inset-top)) 16px 0;
+    }
+    .top-row { max-width:960px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .top-title { font-family:'Playfair Display',serif; font-size:1.15rem; }
+    .top-title small { display:block; font-family:'DM Sans',sans-serif; font-size:.72rem; color:var(--gold); letter-spacing:.06em; }
+    .icon-btn { background:rgba(255,255,255,.08); border:none; color:#fff; border-radius:10px; padding:9px; cursor:pointer; display:flex; }
+    .icon-btn svg { width:20px; height:20px; }
+    nav.tabs { max-width:960px; margin:12px auto 0; display:flex; gap:4px; overflow-x:auto; }
+    nav.tabs button {
+      background:none; border:none; color:rgba(255,255,255,.65); padding:10px 14px 12px; cursor:pointer;
+      font-weight:600; font-size:.9rem; border-bottom:3px solid transparent; white-space:nowrap;
+    }
+    nav.tabs button[aria-selected="true"] { color:#fff; border-bottom-color:var(--gold); }
+    main { max-width:960px; margin:0 auto; padding:20px 16px 60px; }
+
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+    .stat { background:#fff; border-radius:var(--radius); padding:14px; border:1px solid #ece6d8; }
+    .stat b { display:block; font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--navy); line-height:1.1; }
+    .stat span { font-size:.75rem; color:var(--gray); }
+
+    .toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; }
+    .seg { display:inline-flex; background:#fff; border:1px solid var(--gray-lt); border-radius:10px; padding:3px; }
+    .seg button { border:none; background:none; padding:7px 12px; border-radius:8px; cursor:pointer; font-size:.84rem; font-weight:600; color:var(--gray); }
+    .seg button[aria-pressed="true"] { background:var(--navy); color:#fff; }
+    .search { flex:1; min-width:160px; max-width:280px; padding:9px 12px; border:1px solid var(--gray-lt); border-radius:10px; background:#fff; }
+
+    .day-h { font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin:22px 0 10px; }
+    .day-h:first-child { margin-top:4px; }
+    .cita { background:#fff; border:1px solid #ece6d8; border-radius:14px; margin-bottom:10px; overflow:hidden; }
+    .cita-head { display:flex; gap:14px; align-items:center; padding:14px 16px; cursor:pointer; width:100%; background:none; border:none; text-align:left; }
+    .cita-hora { font-family:'Playfair Display',serif; font-weight:700; color:var(--navy); font-size:1.05rem; min-width:72px; }
+    .cita-main { flex:1; min-width:0; }
+    .cita-nombre { font-weight:600; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cita-plan { font-size:.78rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .badge { font-size:.7rem; font-weight:700; padding:4px 9px; border-radius:99px; white-space:nowrap; }
+    .b-Pendiente { background:var(--warn-bg); color:var(--warn); }
+    .b-Confirmada { background:var(--ok-bg); color:var(--ok); }
+    .b-Atendida { background:var(--info-bg); color:var(--info); }
+    .b-Cancelada, .b-No { background:var(--bad-bg); color:var(--bad); }
+    .cita-body { border-top:1px solid #f0ebe0; padding:14px 16px 16px; display:none; }
+    .cita.open .cita-body { display:block; }
+    .kv { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px 18px; margin-bottom:14px; }
+    .kv div { font-size:.86rem; }
+    .kv dt { font-size:.7rem; color:var(--gray); text-transform:uppercase; letter-spacing:.06em; margin-bottom:2px; }
+    .motivo { background:var(--cream); border-radius:10px; padding:10px 12px; font-size:.88rem; line-height:1.5; margin-bottom:14px; white-space:pre-wrap; }
+    .acciones { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .acciones select { padding:8px 10px; border-radius:9px; border:1.5px solid var(--gray-lt); background:#fff; min-height:36px; }
+    .notas { width:100%; margin-top:10px; padding:9px 12px; border:1.5px solid var(--gray-lt); border-radius:9px; min-height:60px; resize:vertical; }
+    .btn-wa { background:#25d366; color:#fff; text-decoration:none; }
+    .vacio { text-align:center; color:var(--gray); padding:48px 16px; background:#fff; border-radius:14px; border:1px dashed var(--gray-lt); }
+
+    .card { background:#fff; border:1px solid #ece6d8; border-radius:14px; padding:20px; margin-bottom:16px; }
+    .card h2 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--navy); margin-bottom:4px; }
+    .card p.help { font-size:.84rem; color:var(--gray); margin-bottom:16px; line-height:1.5; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .field label { display:block; font-size:.78rem; font-weight:600; color:var(--navy); margin-bottom:5px; }
+    .field input, .field select { width:100%; padding:10px 12px; border:1.5px solid var(--gray-lt); border-radius:10px; background:#fff; min-height:44px; }
+    .list-item { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 0; border-top:1px solid #f0ebe0; font-size:.9rem; }
+    .list-item:first-of-type { border-top:none; }
+    .list-item small { display:block; color:var(--gray); font-size:.76rem; }
+
+    #toast {
+      position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(120px);
+      background:var(--navy); color:#fff; padding:12px 18px; border-radius:12px; font-size:.88rem;
+      box-shadow:0 10px 30px rgba(0,0,0,.25); transition:transform .3s; z-index:50; max-width:calc(100% - 32px);
+    }
+    #toast.show { transform:translateX(-50%) translateY(0); }
+    .spinner { width:18px; height:18px; border:2px solid rgba(15,31,61,.2); border-top-color:var(--navy); border-radius:50%; animation:spin .8s linear infinite; display:inline-block; vertical-align:middle; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    #oferta-faceid { background:var(--navy); color:#fff; border-radius:14px; padding:18px; margin-bottom:18px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+    #oferta-faceid p { flex:1; min-width:200px; font-size:.9rem; line-height:1.5; }
+    #oferta-faceid b { color:var(--gold-lt); }
+
+    @media (max-width:560px) {
+      .stats { gap:8px; }
+      .stat { padding:12px 10px; }
+      .stat b { font-size:1.35rem; }
+      .row { grid-template-columns:1fr; }
+      .search { max-width:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<section id="login">
+  <div class="login-card">
+    <div class="login-logo"><img src="logo.png" alt="" onerror="this.style.display='none'" /></div>
+    <h1>Panel privado</h1>
+    <p class="sub">Dr. Juan W. Castellanos</p>
+
+    <button class="btn btn-navy btn-block hidden" id="btn-faceid" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3H5a2 2 0 0 0-2 2v2M17 3h2a2 2 0 0 1 2 2v2M7 21H5a2 2 0 0 1-2-2v-2M17 21h2a2 2 0 0 0 2-2v-2"/><path d="M9 9v1M15 9v1M12 9v4h-1M9 16c1.6 1.3 4.4 1.3 6 0"/></svg>
+      <span>Entrar con Face ID / huella</span>
+    </button>
+    <div class="divider hidden" id="divider">o con tu PIN</div>
+
+    <form id="form-pin" autocomplete="off">
+      <label for="pin" class="hidden">PIN</label>
+      <input id="pin" class="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="12"
+             placeholder="••••••" autocomplete="current-password" aria-label="PIN" />
+      <button class="btn btn-gold btn-block" type="submit" id="btn-pin">Entrar</button>
+    </form>
+    <form id="form-activar" class="hidden" autocomplete="off" style="text-align:left">
+      <p style="font-size:.88rem;color:var(--navy);margin-bottom:14px;line-height:1.5;text-align:center"><b>Primer ingreso.</b> Escribe tu código de activación y elige tu PIN.</p>
+      <label for="act-codigo" style="font-size:.78rem;font-weight:600;color:var(--navy)">Código de activación</label>
+      <input id="act-codigo" class="pin-input" style="letter-spacing:.2em;font-size:1.2rem;margin-top:5px" inputmode="numeric" maxlength="8" placeholder="8 dígitos" required />
+      <label for="act-pin" style="font-size:.78rem;font-weight:600;color:var(--navy)">Tu nuevo PIN (6 a 12 dígitos)</label>
+      <input id="act-pin" class="pin-input" style="margin-top:5px" type="password" inputmode="numeric" maxlength="12" placeholder="••••••" autocomplete="new-password" required />
+      <label for="act-pin2" style="font-size:.78rem;font-weight:600;color:var(--navy)">Repite el PIN</label>
+      <input id="act-pin2" class="pin-input" style="margin-top:5px" type="password" inputmode="numeric" maxlength="12" placeholder="••••••" autocomplete="new-password" required />
+      <button class="btn btn-gold btn-block" type="submit" id="btn-act">Crear PIN y entrar</button>
+    </form>
+    <p class="msg" id="login-msg" role="alert"></p>
+    <p class="login-foot">¿Olvidaste tu PIN? Recupéralo desde Google Apps Script con la función <b>configurarPIN</b>. Tus citas también están siempre en tu hoja de Google.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="top-row">
+      <div class="top-title">Mis citas<small>DR. JUAN W. CASTELLANOS</small></div>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn" id="btn-refrescar" title="Actualizar" aria-label="Actualizar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-salir" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="t-citas">Citas</button>
+      <button role="tab" aria-selected="false" data-tab="t-bloqueos">Bloquear horarios</button>
+      <button role="tab" aria-selected="false" data-tab="t-seguridad">Seguridad</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="oferta-faceid" class="hidden">
+      <p><b>Activa Face ID en este teléfono</b><br>La próxima vez entrarás solo mirando la pantalla, sin escribir el PIN.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-gold btn-sm" id="btn-activar-oferta">Activar</button>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,.1);color:#fff" id="btn-oferta-no">Ahora no</button>
+      </div>
+    </div>
+
+    <!-- Citas -->
+    <section id="t-citas">
+      <div class="stats">
+        <div class="stat"><b id="s-hoy">–</b><span>Hoy</span></div>
+        <div class="stat"><b id="s-pend">–</b><span>Por confirmar</span></div>
+        <div class="stat"><b id="s-prox">–</b><span>Próximas</span></div>
+      </div>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Filtro">
+          <button aria-pressed="true" data-filtro="proximas">Próximas</button>
+          <button aria-pressed="false" data-filtro="todas">Todas</button>
+        </div>
+        <input class="search" id="buscar" type="search" placeholder="Buscar paciente…" aria-label="Buscar paciente" />
+      </div>
+      <div id="lista"><div class="vacio"><span class="spinner"></span></div></div>
+    </section>
+
+    <!-- Bloqueos -->
+    <section id="t-bloqueos" class="hidden">
+      <div class="card">
+        <h2>Bloquear un día u hora</h2>
+        <p class="help">Úsalo para vacaciones, turnos o compromisos. Los pacientes verán esas horas como no disponibles.</p>
+        <form id="form-bloqueo">
+          <div class="row">
+            <div class="field"><label for="b-fecha">Fecha</label><input type="date" id="b-fecha" required /></div>
+            <div class="field"><label for="b-hora">Hora</label><select id="b-hora"><option value="TODO">Todo el día</option></select></div>
+          </div>
+          <div class="field" style="margin-bottom:14px"><label for="b-nota">Nota (opcional)</label><input id="b-nota" maxlength="80" placeholder="Ej. Turno en hospital" /></div>
+          <button class="btn btn-navy" type="submit">Bloquear</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Bloqueos activos</h2>
+        <div id="lista-bloqueos"></div>
+      </div>
+    </section>
+
+    <!-- Seguridad -->
+    <section id="t-seguridad" class="hidden">
+      <div class="card">
+        <h2>Face ID / huella</h2>
+        <p class="help">Dispositivos que pueden entrar sin PIN. Con iPhone, el acceso se sincroniza en tus equipos Apple por iCloud. Si pierdes un teléfono, bórralo de aquí.</p>
+        <div id="lista-passkeys"></div>
+        <button class="btn btn-gold" id="btn-registrar" style="margin-top:14px">Activar en este dispositivo</button>
+        <p class="msg" id="pk-msg"></p>
+      </div>
+      <div class="card">
+        <h2>Cambiar PIN</h2>
+        <p class="help">Entre 6 y 12 dígitos. Evita fechas de nacimiento o números repetidos.</p>
+        <form id="form-cambiar-pin">
+          <div class="row">
+            <div class="field"><label for="pin-actual">PIN actual</label><input id="pin-actual" type="password" inputmode="numeric" required autocomplete="current-password" /></div>
+            <div class="field"><label for="pin-nuevo">PIN nuevo</label><input id="pin-nuevo" type="password" inputmode="numeric" required minlength="6" maxlength="12" pattern="[0-9]{6,12}" autocomplete="new-password" /></div>
+          </div>
+          <button class="btn btn-navy" type="submit">Guardar PIN</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Acceso de respaldo</h2>
+        <p class="help" style="margin-bottom:0">Aunque falle esta página, tus citas siempre están en tu hoja de Google “Citas”, en tu correo y en tu Google Calendar, protegidas por tu cuenta de Google.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+  /* Misma URL que en index.html */
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzqXiFoTIIYx6NwRkpKFYxLUTyH3_PZlUhF10tufE5P1792KVMicFR61VtFbBFBcmY/exec';
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+    sget(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+    sset(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
+    sdel(k) { try { sessionStorage.removeItem(k); } catch (e) {} }
+  };
+  const LABELS = { '07:00':'7:00 AM','08:00':'8:00 AM','09:00':'9:00 AM','10:00':'10:00 AM','11:00':'11:00 AM','12:00':'12:00 PM','13:00':'1:00 PM','14:00':'2:00 PM','15:00':'3:00 PM','16:00':'4:00 PM','17:00':'5:00 PM' };
+  const etq = h => h === 'TODO' ? 'Todo el día' : (LABELS[h] || h);
+  const hoyHN = () => new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10);
+  const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function fechaLarga(f) {
+    const [a, m, d] = f.split('-').map(Number);
+    const dt = new Date(Date.UTC(a, m - 1, d, 12));
+    const hoy = hoyHN();
+    const man = new Date(Date.now() + 18 * 3600e3).toISOString().slice(0, 10);
+    const pref = f === hoy ? 'Hoy · ' : (f === man ? 'Mañana · ' : '');
+    return pref + DIAS[dt.getUTCDay()] + ' ' + d + ' de ' + MESES[m - 1] + (a !== new Date().getFullYear() ? ' ' + a : '');
+  }
+
+  let token = store.sget('tok');
+  let estado = { citas: [], bloqueos: [], estados: [], horas: [], filtro: 'proximas' };
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  async function api(accion, datos = {}) {
+    let r;
+    try {
+      r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ accion, token, ...datos }) });
+    } catch (e) { throw new Error('Sin conexión. Revisa tu internet.'); }
+    const j = await r.json();
+    if (j.sesion) { cerrarSesion(true); throw new Error(j.error); }
+    if (!j.ok) throw new Error(j.error || 'Error');
+    return j;
+  }
+
+  /* ─── Base64URL ↔ bytes ─── */
+  const b64uABuf = s => { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return Uint8Array.from(atob(s), c => c.charCodeAt(0)).buffer; };
+  const bufAB64u = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  /* ─── Login ─── */
+  const msg = (el, t, ok) => { el.textContent = t; el.className = 'msg ' + (ok ? 'ok' : 'err'); };
+
+  async function soportaFaceID() {
+    try { return !!window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }
+    catch (e) { return false; }
+  }
+
+  $('form-pin').addEventListener('submit', async e => {
+    e.preventDefault();
+    const pin = $('pin').value.trim();
+    if (!pin) return;
+    $('btn-pin').disabled = true; $('btn-pin').innerHTML = '<span class="spinner"></span>';
+    try {
+      const r = await api('login', { pin });
+      $('pin').value = '';
+      entrar(r.token, true);
+    } catch (err) { msg($('login-msg'), err.message); $('pin').select(); }
+    finally { $('btn-pin').disabled = false; $('btn-pin').textContent = 'Entrar'; }
+  });
+
+  $('btn-faceid').addEventListener('click', async () => {
+    msg($('login-msg'), '');
+    try {
+      const o = await api('passkeyOpciones');
+      if (!o.ids.length) throw new Error('Aún no has activado Face ID. Entra con tu PIN y actívalo.');
+      const cred = await navigator.credentials.get({ publicKey: {
+        challenge: b64uABuf(o.reto), rpId: o.rpId, userVerification: 'required', timeout: 60000,
+        allowCredentials: o.ids.map(id => ({ type: 'public-key', id: b64uABuf(id) }))
+      }});
+      const r = await api('passkeyEntrar', {
+        id: cred.id,
+        authenticatorData: bufAB64u(cred.response.authenticatorData),
+        clientDataJSON: bufAB64u(cred.response.clientDataJSON),
+        signature: bufAB64u(cred.response.signature)
+      });
+      store.set('faceid', '1');
+      entrar(r.token, false);
+    } catch (err) {
+      msg($('login-msg'), err.name === 'NotAllowedError' ? 'Face ID cancelado. Intenta de nuevo o usa tu PIN.' : err.message);
+    }
+  });
+
+  async function registrarFaceID() {
+    if (!(await soportaFaceID())) throw new Error('Este dispositivo o navegador no tiene Face ID / huella disponible.');
+    const o = await api('passkeyRegOpciones');
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: b64uABuf(o.reto),
+      rp: { id: o.rpId, name: 'Panel Dr. Castellanos' },
+      user: { id: b64uABuf(o.usuarioId), name: 'Dr. Juan W. Castellanos', displayName: 'Dr. Juan W. Castellanos' },
+      pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+      authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'preferred', userVerification: 'required' },
+      attestation: 'none', timeout: 60000
+    }});
+    const pk = cred.response.getPublicKey && cred.response.getPublicKey();
+    if (!pk) throw new Error('Actualiza tu navegador para usar Face ID.');
+    const nombre = /iPhone/.test(navigator.userAgent) ? 'iPhone' : /iPad/.test(navigator.userAgent) ? 'iPad' :
+      /Android/.test(navigator.userAgent) ? 'Android' : /Mac/.test(navigator.userAgent) ? 'Mac' : 'Computadora';
+    await api('passkeyRegistrar', {
+      id: cred.id, publicKey: bufAB64u(pk), alg: cred.response.getPublicKeyAlgorithm(),
+      clientDataJSON: bufAB64u(cred.response.clientDataJSON), nombre
+    });
+    store.set('faceid', '1');
+  }
+
+  async function entrar(t, conPin) {
+    token = t; store.sset('tok', t);
+    $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+    if (conPin && store.get('faceid') !== '1' && store.get('faceid-no') !== '1' && await soportaFaceID()) {
+      $('oferta-faceid').classList.remove('hidden');
+    }
+    cargar();
+  }
+
+  function cerrarSesion(expirada) {
+    if (token && !expirada) fetch(API_URL, { method: 'POST', body: JSON.stringify({ accion: 'salir', token }) }).catch(() => {});
+    token = null; store.sdel('tok');
+    $('app').classList.add('hidden'); $('login').classList.remove('hidden');
+    if (expirada) msg($('login-msg'), 'Tu sesión expiró. Entra de nuevo.');
+  }
+
+  $('btn-salir').addEventListener('click', () => cerrarSesion(false));
+  $('btn-refrescar').addEventListener('click', () => cargar(true));
+  $('btn-oferta-no').addEventListener('click', () => { store.set('faceid-no', '1'); $('oferta-faceid').classList.add('hidden'); });
+  $('btn-activar-oferta').addEventListener('click', async () => {
+    try { await registrarFaceID(); $('oferta-faceid').classList.add('hidden'); toast('Face ID activado ✓'); }
+    catch (err) { toast(err.name === 'NotAllowedError' ? 'Activación cancelada' : err.message); }
+  });
+
+  /* ─── Tabs ─── */
+  document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    ['t-citas', 't-bloqueos', 't-seguridad'].forEach(id => $(id).classList.toggle('hidden', id !== b.dataset.tab));
+    if (b.dataset.tab === 't-seguridad') cargarPasskeys();
+  }));
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    estado.filtro = b.dataset.filtro; cargar();
+  }));
+  $('buscar').addEventListener('input', pintarCitas);
+
+  /* ─── Datos ─── */
+  async function cargar(aviso) {
+    try {
+      const r = await api('listar', { filtro: estado.filtro });
+      Object.assign(estado, { citas: r.citas, bloqueos: r.bloqueos, estados: r.estados, horas: r.horas });
+      pintarCitas(); pintarBloqueos();
+      if (aviso) toast('Actualizado');
+    } catch (err) {
+      if (token) $('lista').innerHTML = `<div class="vacio">${esc(err.message)}</div>`;
+    }
+  }
+
+  function pintarCitas() {
+    const hoy = hoyHN();
+    const futuras = estado.citas.filter(c => c.Fecha >= hoy && c.Estado !== 'Cancelada');
+    $('s-hoy').textContent = futuras.filter(c => c.Fecha === hoy).length;
+    $('s-pend').textContent = futuras.filter(c => c.Estado === 'Pendiente').length;
+    $('s-prox').textContent = futuras.length;
+
+    const q = $('buscar').value.trim().toLowerCase();
+    let lista = estado.citas.filter(c => !q || (c.Nombre + ' ' + c.Telefono + ' ' + c.Identidad + ' ' + c.ID).toLowerCase().includes(q));
+    if (estado.filtro === 'todas') lista = lista.slice().reverse();
+    if (!lista.length) { $('lista').innerHTML = '<div class="vacio">No hay citas para mostrar.</div>'; return; }
+
+    let html = '', dia = '';
+    lista.forEach(c => {
+      if (c.Fecha !== dia) { dia = c.Fecha; html += `<div class="day-h">${esc(fechaLarga(dia))}</div>`; }
+      const tel = String(c.Telefono).replace(/\D/g, '');
+      const wa = (tel.length === 8 ? '504' + tel : tel);
+      const texto = encodeURIComponent(`Hola ${String(c.Nombre).split(' ')[0]}, le saluda el Dr. Juan W. Castellanos. Le confirmo su cita el ${fechaLarga(c.Fecha).replace(/^(Hoy|Mañana) · /, '')} a las ${etq(c.Hora)} en Peniel Hospital Médico Quirúrgico. ¿Me confirma su asistencia?`);
+      const opts = estado.estados.map(s => `<option ${s === c.Estado ? 'selected' : ''}>${esc(s)}</option>`).join('');
+      html += `
+        <article class="cita" data-id="${esc(c.ID)}">
+          <button class="cita-head" type="button" aria-expanded="false">
+            <div class="cita-hora">${esc(etq(c.Hora))}</div>
+            <div class="cita-main">
+              <div class="cita-nombre">${esc(c.Nombre)}</div>
+              <div class="cita-plan">${esc(c.Plan)}</div>
+            </div>
+            <span class="badge b-${esc(String(c.Estado).split(' ')[0])}">${esc(c.Estado)}</span>
+          </button>
+          <div class="cita-body">
+            <dl class="kv">
+              <div><dt>Teléfono</dt><dd>${esc(c.Telefono)}</dd></div>
+              <div><dt>Identidad</dt><dd>${esc(c.Identidad)}</dd></div>
+              <div><dt>Edad · Sexo</dt><dd>${esc(c.Edad)} años · ${esc(c.Sexo)}</dd></div>
+              <div><dt>Nacimiento</dt><dd>${esc(c.Nacimiento)}</dd></div>
+              <div><dt>Enfermedad de base</dt><dd>${esc(c.EnfermedadBase)}${c.Enfermedades ? ' — ' + esc(c.Enfermedades) : ''}</dd></div>
+              <div><dt>Alergias</dt><dd>${esc(c.Alergias || '—')}</dd></div>
+              <div><dt>Solicitada</dt><dd>${esc(c.Creada)} · ${esc(c.ID)}</dd></div>
+            </dl>
+            <div class="motivo"><b>Motivo:</b> ${esc(c.Motivo)}</div>
+            <div class="acciones">
+              <a class="btn btn-sm btn-wa" href="https://wa.me/${esc(wa)}?text=${texto}" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn btn-sm btn-line" href="tel:${esc(tel)}">Llamar</a>
+              <select aria-label="Estado de la cita" data-accion="estado">${opts}</select>
+            </div>
+            <textarea class="notas" placeholder="Notas privadas…" data-accion="notas">${esc(c.Notas)}</textarea>
+            <button class="btn btn-sm btn-navy" style="margin-top:8px" data-accion="guardar">Guardar</button>
+          </div>
+        </article>`;
+    });
+    $('lista').innerHTML = html;
+  }
+
+  $('lista').addEventListener('click', async e => {
+    const card = e.target.closest('.cita'); if (!card) return;
+    if (e.target.closest('.cita-head')) {
+      card.classList.toggle('open');
+      card.querySelector('.cita-head').setAttribute('aria-expanded', card.classList.contains('open'));
+      return;
+    }
+    if (e.target.dataset.accion === 'guardar') {
+      const nuevo = card.querySelector('[data-accion="estado"]').value;
+      const notas = card.querySelector('[data-accion="notas"]').value;
+      if (nuevo === 'Cancelada' && !confirm('¿Cancelar esta cita? La hora quedará libre para otros pacientes.')) return;
+      e.target.disabled = true;
+      try {
+        await api('estado', { id: card.dataset.id, estado: nuevo, notas });
+        const c = estado.citas.find(x => x.ID === card.dataset.id); c.Estado = nuevo; c.Notas = notas;
+        pintarCitas(); toast('Guardado ✓');
+      } catch (err) { toast(err.message); e.target.disabled = false; }
+    }
+  });
+
+  /* ─── Bloqueos ─── */
+  function pintarBloqueos() {
+    const sel = $('b-hora');
+    if (sel.options.length === 1) estado.horas.forEach(h => sel.add(new Option(etq(h), h)));
+    $('b-fecha').min = hoyHN();
+    const l = estado.bloqueos.slice().sort((a, b) => (a.Fecha + a.Hora) < (b.Fecha + b.Hora) ? -1 : 1);
+    $('lista-bloqueos').innerHTML = l.length ? l.map(b => `
+      <div class="list-item">
+        <div>${esc(fechaLarga(b.Fecha))} · <b>${esc(etq(b.Hora))}</b><small>${esc(b.Nota || '')}</small></div>
+        <button class="btn btn-sm btn-danger" data-f="${esc(b.Fecha)}" data-h="${esc(b.Hora)}">Quitar</button>
+      </div>`).join('') : '<p class="help" style="margin:0">No hay bloqueos.</p>';
+  }
+  $('form-bloqueo').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      await api('bloquear', { fecha: $('b-fecha').value, hora: $('b-hora').value, nota: $('b-nota').value });
+      $('b-nota').value = ''; toast('Bloqueado ✓'); cargar();
+    } catch (err) { toast(err.message); }
+  });
+  $('lista-bloqueos').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-f]'); if (!b) return;
+    try { await api('desbloquear', { fecha: b.dataset.f, hora: b.dataset.h }); toast('Desbloqueado'); cargar(); }
+    catch (err) { toast(err.message); }
+  });
+
+  /* ─── Seguridad ─── */
+  async function cargarPasskeys() {
+    $('btn-registrar').classList.toggle('hidden', !(await soportaFaceID()));
+    try {
+      const r = await api('passkeysListar');
+      $('lista-passkeys').innerHTML = r.lista.length ? r.lista.map(k => `
+        <div class="list-item">
+          <div>${esc(k.nombre)}<small>Activado ${esc(k.creada)}</small></div>
+          <button class="btn btn-sm btn-danger" data-id="${esc(k.id)}">Quitar</button>
+        </div>`).join('') : '<p class="help" style="margin:0">Ningún dispositivo activado todavía.</p>';
+    } catch (err) { $('lista-passkeys').textContent = err.message; }
+  }
+  $('lista-passkeys').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-id]'); if (!b) return;
+    if (!confirm('¿Quitar este dispositivo? Ya no podrá entrar con Face ID.')) return;
+    try { await api('passkeyBorrar', { id: b.dataset.id }); store.del('faceid'); toast('Dispositivo quitado'); cargarPasskeys(); }
+    catch (err) { toast(err.message); }
+  });
+  $('btn-registrar').addEventListener('click', async () => {
+    try { await registrarFaceID(); msg($('pk-msg'), 'Face ID activado en este dispositivo.', true); cargarPasskeys(); }
+    catch (err) { msg($('pk-msg'), err.name === 'NotAllowedError' ? 'Activación cancelada.' : err.message); }
+  });
+  $('form-cambiar-pin').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      await api('cambiarPin', { actual: $('pin-actual').value, nuevo: $('pin-nuevo').value });
+      e.target.reset(); toast('PIN actualizado ✓');
+    } catch (err) { toast(err.message); }
+  });
+
+  /* ─── Inicio ─── */
+  (async () => {
+    if (await soportaFaceID()) {
+      $('btn-faceid').classList.remove('hidden'); $('divider').classList.remove('hidden');
+    }
+    if (API_URL.startsWith('PEGA_')) { msg($('login-msg'), 'Falta pegar la URL de Apps Script en admin.html.'); return; }
+    if (token) { entrar(token, false); return; }
+    try {
+      const e = await api('estadoPin');
+      if (!e.configurado) {
+        ['form-pin','btn-faceid','divider'].forEach(id => $(id).classList.add('hidden'));
+        $('form-activar').classList.remove('hidden');
+      }
+    } catch (err) {}
+  })();
+
+  $('form-activar').addEventListener('submit', async e => {
+    e.preventDefault();
+    const pin = $('act-pin').value.trim();
+    if (!/^\d{6,12}$/.test(pin)) { msg($('login-msg'), 'El PIN debe tener entre 6 y 12 números.'); return; }
+    if (pin !== $('act-pin2').value.trim()) { msg($('login-msg'), 'Los dos PIN no coinciden.'); return; }
+    $('btn-act').disabled = true;
+    try {
+      const r = await api('activar', { codigo: $('act-codigo').value, pin });
+      $('form-activar').classList.add('hidden'); $('form-pin').classList.remove('hidden');
+      if (await soportaFaceID()) { $('btn-faceid').classList.remove('hidden'); $('divider').classList.remove('hidden'); }
+      entrar(r.token, true);
+    } catch (err) { msg($('login-msg'), err.message); }
+    finally { $('btn-act').disabled = false; }
+  });
+</script>
+</body>
+</html>
