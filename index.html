@@ -922,9 +922,9 @@
           <div class="success-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" width="30" height="30"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <h3>¡Solicitud recibida!</h3>
+          <h3>¡Cita confirmada!</h3>
           <p id="success-detalle">Te contactaré por WhatsApp para confirmar tu cita.</p>
-          <p style="margin-top:14px;font-size:.8rem">Si no recibes respuesta en 24 horas, escríbeme al (+504) 9890-4686.</p>
+          <p style="margin-top:14px;font-size:.8rem">Si no te llega mi mensaje de WhatsApp el mismo día, escríbeme al (+504) 9890-4686.</p>
           <button type="button" class="btn-submit" id="btn-otra" style="margin-top:22px">Agendar otra cita</button>
         </div>
       </div>
@@ -1013,6 +1013,40 @@
   }
 
   const $ = id => document.getElementById(id);
+
+  // Recordatorio en el calendario del celular del paciente.
+  // Avisa 1 h antes si la cita es hoy, 3 h antes si falta menos de un día, y 24 h antes en los demás casos.
+  function botonesCalendario(id, fecha, hora) {
+    const [y, mo, d] = fecha.split('-').map(Number);
+    const [h, mi] = hora.split(':').map(Number);
+    const ini = new Date(Date.UTC(y, mo - 1, d, h + 6, mi));        // Honduras = UTC-6
+    const fin = new Date(ini.getTime() + 60 * 60000);
+    const hoyHN = new Date(Date.now() - 6 * 3600000).toISOString().slice(0, 10);
+    const min = fecha === hoyHN ? 60 : (ini.getTime() - Date.now() < 86400000 ? 180 : 1440);
+    const z = t => t.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const titulo = 'Cita médica — Dr. Juan W. Castellanos';
+    const lugar = 'Peniel Hospital Médico Quirúrgico, 22 Calle A, San Pedro Sula';
+    const nota = `Código de cita: ${id}. Si no puedes asistir, avisa por WhatsApp al +504 9890-4686.`;
+    const esc = s => s.replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;');
+    const ics = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Dr Castellanos//Citas//ES', 'METHOD:PUBLISH',
+      'BEGIN:VEVENT', `UID:${id}@dr-castellanos`, `DTSTAMP:${z(new Date())}`,
+      `DTSTART:${z(ini)}`, `DTEND:${z(fin)}`, `SUMMARY:${esc(titulo)}`,
+      `LOCATION:${esc(lugar)}`, `DESCRIPTION:${esc(nota)}`,
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Recordatorio de tu cita médica', `TRIGGER:-PT${min}M`, 'END:VALARM',
+      'END:VEVENT', 'END:VCALENDAR'
+    ].join('\r\n');
+    const apple = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+    const google = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent(titulo) + '&dates=' + z(ini) + '/' + z(fin) +
+      '&details=' + encodeURIComponent(nota) + '&location=' + encodeURIComponent(lugar);
+    const estilo = 'display:inline-flex;align-items:center;gap:6px;padding:11px 16px;border-radius:8px;' +
+      'border:1px solid #c9d1db;background:#fff;color:#11233b;font-weight:600;font-size:.88rem;text-decoration:none';
+    return `<span style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px">` +
+      `<a href="${apple}" download="cita-dr-castellanos.ics" style="${estilo}">📅 iPhone / iPad</a>` +
+      `<a href="${google}" target="_blank" rel="noopener" style="${estilo}">📅 Google Calendar</a></span>`;
+  }
+
   const form = $('form-body');
   let selectedSlot = null;
 
@@ -1110,8 +1144,9 @@
       }
       const [a, m, d] = r.fecha.split('-');
       $('success-detalle').innerHTML =
-        `Tu solicitud para el <b>${d}/${m}/${a}</b> a las <b>${etiqueta(r.hora)}</b> quedó registrada (código <b>${r.id}</b>). ` +
-        'Te contactaré por WhatsApp para confirmarla.';
+        `Tu cita quedó <b>confirmada</b> para el <b>${d}/${m}/${a}</b> a las <b>${etiqueta(r.hora)}</b> (código <b>${r.id}</b>). ` +
+        'Te enviaré la confirmación por WhatsApp.<br><br>Guarda un recordatorio en tu celular:' +
+        botonesCalendario(r.id, r.fecha, r.hora);
       form.style.display = 'none';
       $('success-msg').style.display = 'block';
       $('formulario').scrollIntoView({ behavior: 'smooth', block: 'start' });
