@@ -1016,6 +1016,8 @@
 
   // Recordatorio en el calendario del celular del paciente.
   // Avisa 1 h antes si la cita es hoy, 3 h antes si falta menos de un día, y 24 h antes en los demás casos.
+  // iPhone / iPad: el archivo de calendario lo entrega el enlace "Calendario de citas" (Apps Script).
+  const CALENDARIO_URL = 'https://script.google.com/macros/s/AKfycbydbs1fbCOATnA4SJlgiIYYXcPc46oWipi-YL8sV5820YD_TfUk6F2Ra0EvZJ3OLy7q/exec';
   function botonesCalendario(id, fecha, hora) {
     const [y, mo, d] = fecha.split('-').map(Number);
     const [h, mi] = hora.split(':').map(Number);
@@ -1027,23 +1029,14 @@
     const titulo = 'Cita médica — Dr. Juan W. Castellanos';
     const lugar = 'Peniel Hospital Médico Quirúrgico, 22 Calle A, San Pedro Sula';
     const nota = `Código de cita: ${id}. Si no puedes asistir, avisa por WhatsApp al +504 9890-4686.`;
-    const esc = s => s.replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/;/g, '\\;');
-    const ics = [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Dr Castellanos//Citas//ES', 'METHOD:PUBLISH',
-      'BEGIN:VEVENT', `UID:${id}@dr-castellanos`, `DTSTAMP:${z(new Date())}`,
-      `DTSTART:${z(ini)}`, `DTEND:${z(fin)}`, `SUMMARY:${esc(titulo)}`,
-      `LOCATION:${esc(lugar)}`, `DESCRIPTION:${esc(nota)}`,
-      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Recordatorio de tu cita médica', `TRIGGER:-PT${min}M`, 'END:VALARM',
-      'END:VEVENT', 'END:VCALENDAR'
-    ].join('\r\n');
-    const apple = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+    const apple = CALENDARIO_URL + '?f=' + fecha + '&h=' + hora + '&id=' + encodeURIComponent(id) + '&m=' + min;
     const google = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
       '&text=' + encodeURIComponent(titulo) + '&dates=' + z(ini) + '/' + z(fin) +
       '&details=' + encodeURIComponent(nota) + '&location=' + encodeURIComponent(lugar);
     const estilo = 'display:inline-flex;align-items:center;gap:6px;padding:11px 16px;border-radius:8px;' +
       'border:1px solid #c9d1db;background:#fff;color:#11233b;font-weight:600;font-size:.88rem;text-decoration:none';
     return `<span style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px">` +
-      `<a href="${apple}" download="cita-dr-castellanos.ics" style="${estilo}">📅 iPhone / iPad</a>` +
+      `<a href="${apple}" target="_blank" rel="noopener" style="${estilo}">📅 iPhone / iPad</a>` +
       `<a href="${google}" target="_blank" rel="noopener" style="${estilo}">📅 Google Calendar</a></span>`;
   }
 
